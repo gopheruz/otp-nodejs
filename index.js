@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 const otpLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 60 * 1000,
     max: 5,
     message: 'Too many OTP requests from this IP, please try again later'
 });
@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD.replace(/\s+/g, '') // Remove spaces from app password
+        pass: process.env.SMTP_PASSWORD.replace(/\s+/g, '')
     }
 });
 
@@ -42,17 +42,17 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
         }
 
         const otp = generateOTP();
-        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+        const expiresAt = Date.now() + 1 * 60 * 1000;
 
         otpStore.set(email, { otp, expiresAt, attempts: 0 });
 
         await transporter.sendMail({
-            from: `"OTP Service" <${process.env.SMTP_USER}>`,
+            from: `"Guruh 215" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Tasdiqlash kodi',
             text: `Siznig tasdiqlash kodingiz ${otp}`,
-            html: `<p>Your OTP code is <strong>${otp}</strong></p>
-             <p>Valid for 10 minutes</p>`
+            html: `<p>Siznig tasdiqlash kkodingiz <strong>${otp}</strong></p>
+             <p>1 daqiqadan keyin eskiradi</p>`
         });
 
         console.log(`OTP sent to ${email}`);
